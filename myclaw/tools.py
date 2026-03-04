@@ -15,13 +15,20 @@ def shell(cmd: str) -> str:
 
 def read_file(path: str) -> str:
     try:
-        return (WORKSPACE / path).read_text()
+        target_path = (WORKSPACE / path).resolve()
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Path traversal detected"
+        return target_path.read_text()
     except Exception as e:
         return f"Error: {e}"
 
 def write_file(path: str, content: str) -> str:
     try:
-        (WORKSPACE / path).write_text(content)
+        target_path = (WORKSPACE / path).resolve()
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Path traversal detected"
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_text(content)
         return f"File written: {path}"
     except Exception as e:
         return f"Error: {e}"
