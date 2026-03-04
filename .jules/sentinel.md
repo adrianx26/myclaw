@@ -1,0 +1,4 @@
+## 2024-05-24 - [Path Traversal in File Tools]
+**Vulnerability:** Arbitrary file read and write vulnerabilities via the `read_file` and `write_file` tools.
+**Learning:** `pathlib.Path(WORKSPACE / path)` where `path` starts with a `/` completely discards the `WORKSPACE` prefix, resolving to an absolute path on the host system. Furthermore, paths like `../../` resolve outside the `WORKSPACE`. Using `.startswith()` on strings for boundary checks is insecure as it permits lateral traversal to sibling directories.
+**Prevention:** Always use `path.resolve()` combined with `target_path.is_relative_to(base_dir.resolve())` to securely enforce that a file operation stays within a designated workspace directory.
