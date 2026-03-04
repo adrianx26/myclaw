@@ -1,0 +1,4 @@
+## 2024-03-04 - Path Traversal Vulnerability in File Tools
+**Vulnerability:** The `read_file` and `write_file` functions in `myclaw/tools.py` constructed file paths using simple concatenation `(WORKSPACE / path)`. This allowed path traversal using `../` where an attacker could read or write sensitive files outside of the `WORKSPACE` directory.
+**Learning:** Python's `pathlib.Path` concatenation operator `/` doesn't automatically protect against path traversal if the right hand operand is an absolute path or contains `../`. We must resolve the path fully.
+**Prevention:** Always use `.resolve()` to get the absolute path without any `../` components, and then use `.is_relative_to(WORKSPACE.resolve())` to strictly verify that the target path still resides within the allowed base directory before performing any file operations.
