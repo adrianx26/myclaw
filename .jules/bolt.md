@@ -1,0 +1,3 @@
+## 2024-03-04 - LLM Connection Pooling via requests.Session()
+**Learning:** Establishing a new HTTP/TCP connection for every API call to the local LLM (Ollama) adds measurable overhead, especially when sequential calls are made (e.g., in a tool-calling loop where an LLM needs multiple exchanges). Making standard `requests.post()` calls does not pool connections by default.
+**Action:** When a service frequently interacts with the same HTTP endpoint (like the local Ollama instance), use `requests.Session()` instead of plain `requests.post()`. The `Session` object provides HTTP keep-alive and connection pooling automatically, reducing latency and resource usage.

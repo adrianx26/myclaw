@@ -1,3 +1,4 @@
+import json
 from .memory import Memory
 from .provider import LLMProvider
 from .tools import TOOLS
