@@ -15,16 +15,26 @@ def shell(cmd: str) -> str:
 
 def read_file(path: str) -> str:
     try:
-        return (WORKSPACE / path).read_text()
-    except Exception as e:
-        return f"Error: {e}"
+        target_path = (WORKSPACE / path).resolve()
+        # Security: Prevent path traversal vulnerabilities by enforcing workspace boundaries
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Access denied. File operations are restricted to the workspace."
+        return target_path.read_text()
+    except Exception:
+        # Security: Fail securely, don't leak stack traces or internals
+        return "Error: Failed to read file."
 
 def write_file(path: str, content: str) -> str:
     try:
-        (WORKSPACE / path).write_text(content)
+        target_path = (WORKSPACE / path).resolve()
+        # Security: Prevent path traversal vulnerabilities by enforcing workspace boundaries
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Access denied. File operations are restricted to the workspace."
+        target_path.write_text(content)
         return f"File written: {path}"
-    except Exception as e:
-        return f"Error: {e}"
+    except Exception:
+        # Security: Fail securely, don't leak stack traces or internals
+        return "Error: Failed to write file."
 
 TOOLS = {
     "shell": {"func": shell, "desc": "Execută comandă shell"},
