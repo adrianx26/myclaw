@@ -1,0 +1,4 @@
+## 2026-03-05 - Path Traversal Vulnerability in File Tools
+**Vulnerability:** The `read_file` and `write_file` tools in `myclaw/tools.py` directly appended user input paths to the `WORKSPACE` directory without checking if the resulting path was outside the workspace, allowing arbitrary file read/write via `../` path traversal.
+**Learning:** `pathlib` objects created using the `/` operator do not automatically normalize or resolve paths. Simply checking if a path string `startswith()` the workspace path is also insufficient as it can be bypassed.
+**Prevention:** Always use `.resolve()` to get the absolute, normalized path of the target file, and then verify it is within the allowed directory using `.is_relative_to(WORKSPACE.resolve())` before performing any file operations. Additionally, catch exceptions and return generic error messages to fail securely without leaking internal file structure.
