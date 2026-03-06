@@ -1,0 +1,3 @@
+## 2024-05-18 - Caching Configuration File Reading
+**Learning:** In applications like this Telegram bot (MyClaw), loading the configuration file redundantly, especially when accessed frequently in the application initialization path (e.g. from the `gateway`, `onboard`, `agent`, or `cli` entrypoints) will continuously perform unneeded disk I/O, which blocks the main thread.
+**Action:** Always add simple module-level caching and ensure `copy.deepcopy()` is used when returning values to prevent bugs associated with global state modifications and cache poisoning (e.g., from nested lists or dictionaries).
