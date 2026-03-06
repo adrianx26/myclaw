@@ -15,16 +15,24 @@ def shell(cmd: str) -> str:
 
 def read_file(path: str) -> str:
     try:
-        return (WORKSPACE / path).read_text()
-    except Exception as e:
-        return f"Error: {e}"
+        resolved_path = (WORKSPACE / path).resolve()
+        if not resolved_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: File operation failed"
+        return resolved_path.read_text()
+    except Exception:
+        # Fail securely without leaking internal error details
+        return "Error: File operation failed"
 
 def write_file(path: str, content: str) -> str:
     try:
-        (WORKSPACE / path).write_text(content)
-        return f"File written: {path}"
-    except Exception as e:
-        return f"Error: {e}"
+        resolved_path = (WORKSPACE / path).resolve()
+        if not resolved_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: File operation failed"
+        resolved_path.write_text(content)
+        return f"File written: {resolved_path.name}"
+    except Exception:
+        # Fail securely without leaking internal error details
+        return "Error: File operation failed"
 
 TOOLS = {
     "shell": {"func": shell, "desc": "Execută comandă shell"},
