@@ -1,0 +1,4 @@
+## 2024-05-24 - Path Traversal & Info Leak in File Tools
+**Vulnerability:** `read_file` and `write_file` in `myclaw/tools.py` allowed path traversal via absolute paths or `../` sequences because `pathlib.Path(WORKSPACE / path)` does not intrinsically restrict evaluation. Furthermore, any resulting exceptions (like FileNotFoundError) directly leaked the system's absolute directory structure in the `f"Error: {e}"` return value.
+**Learning:** Python's `pathlib` operator `/` simply concatenates when the right-hand side is an absolute path. The resulting path must be actively validated using `.resolve()` and `.is_relative_to()`. Secondarily, leaking raw exception messages to tools creates Information Disclosure.
+**Prevention:** Always combine `.resolve()` with `.is_relative_to(ROOT.resolve())` for file operations driven by external input. Explicitly handle exceptions to fail securely and return opaque error messages.
