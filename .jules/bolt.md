@@ -1,0 +1,3 @@
+## 2024-05-18 - Configuration Caching and Deepcopy Safety
+**Learning:** Configuration loading in `myclaw/config.py` was reading from disk on every `load_config()` call, creating an I/O bottleneck. Implementing a module-level cache (`_CONFIG_CACHE`) resolves this, but simply caching a reference to the dictionary exposes the application to cache poisoning if callers mutate the returned configuration object.
+**Action:** When implementing module-level state caches for mutable data structures like dictionaries, always use `copy.deepcopy()` on both read and write operations to balance performance gains with protection against unintended global state mutations.
