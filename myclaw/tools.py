@@ -10,21 +10,28 @@ def shell(cmd: str) -> str:
     try:
         result = subprocess.run(cmd, shell=True, cwd=WORKSPACE, capture_output=True, text=True, timeout=30)
         return result.stdout + result.stderr
-    except Exception as e:
-        return f"Error: {e}"
+    except Exception:
+        return "Error: Command execution failed"
 
 def read_file(path: str) -> str:
     try:
-        return (WORKSPACE / path).read_text()
-    except Exception as e:
-        return f"Error: {e}"
+        target_path = (WORKSPACE / path).resolve()
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Access denied"
+        return target_path.read_text()
+    except Exception:
+        return "Error: Access denied"
 
 def write_file(path: str, content: str) -> str:
     try:
-        (WORKSPACE / path).write_text(content)
+        target_path = (WORKSPACE / path).resolve()
+        if not target_path.is_relative_to(WORKSPACE.resolve()):
+            return "Error: Access denied"
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_text(content)
         return f"File written: {path}"
-    except Exception as e:
-        return f"Error: {e}"
+    except Exception:
+        return "Error: Access denied"
 
 TOOLS = {
     "shell": {"func": shell, "desc": "Execută comandă shell"},
