@@ -1,0 +1,4 @@
+## 2024-03-08 - Path Traversal in Workspace Tools
+**Vulnerability:** Path traversal vulnerability in `read_file` and `write_file` tools allowed reading or writing arbitrary files outside the designated `WORKSPACE` directory using `../` or absolute paths. Furthermore, exceptions were exposing internal filesystem paths and permissions in error messages.
+**Learning:** The tools relied on standard concatenation `(WORKSPACE / path)` without checking if the resolved path escaped the base directory. Python's `/` operator with `Path` objects completely replaces the left-hand side if the right-hand side is absolute, which exacerbated the vulnerability.
+**Prevention:** Always use `.resolve()` on both the target path and the base path, and use `.is_relative_to()` to strictly validate containment. Also, catch `Exception` broadly in I/O wrappers to return generic, opaque error messages (e.g., "Error: Access denied") rather than exposing actual exception details.
