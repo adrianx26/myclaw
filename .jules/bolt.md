@@ -1,0 +1,3 @@
+## 2024-11-20 - Minimizing Filesystem Metadata Checks in Configuration Loading
+**Learning:** Using `.exists()` and `.mkdir(exist_ok=True)` on every function call for a configuration object that is retrieved frequently causes unnecessary filesystem I/O operations and performance degradation on hot paths.
+**Action:** Replace `exists()` checks with `try/except FileNotFoundError` on `.stat().st_mtime` to verify if a file was updated, and load/cache the file content. Additionally, limit `mkdir()` initialization logic to the first time the configuration is loaded. Wrap cached returns with `copy.deepcopy()` to prevent external objects from mutating the shared cache state.
