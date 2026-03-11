@@ -1,0 +1,3 @@
+## 2024-05-24 - File System I/O Cache for Hot-Path Config Reads
+**Learning:** Checking file existence with `Path.exists()` on every function call to a hot-path like configuration reads (`load_config`) causes significant filesystem overhead, especially since the config rarely changes.
+**Action:** Implemented a module-level cache that avoids `Path.exists()` entirely by checking `stat().st_mtime` and using a `try/except FileNotFoundError` block. Ensure to initialize directories (`mkdir()`) only on the very first read (when cache is `None`). Lastly, use `copy.deepcopy()` to defend the cache against unintentional in-memory mutations.
