@@ -1,0 +1,4 @@
+## 2025-02-17 - Path Traversal via `pathlib.Path` Left Operand Override
+**Vulnerability:** The `read_file` and `write_file` tools constructed paths via `(WORKSPACE / path)`, allowing user input (`path`) to arbitrarily override the left operand (`WORKSPACE`) if it was an absolute path (e.g., `"/etc/passwd"`), leading to arbitrary file reads and writes across the entire filesystem. It also permitted standard relative path traversal (`"../../"`).
+**Learning:** Python's `pathlib.Path` ignores the left operand if the right operand is an absolute path.
+**Prevention:** Always resolve the final path using `.resolve()` and enforce the boundary check using `.is_relative_to(WORKSPACE.resolve())`. Fail securely with generic messages (e.g., "Error: Access denied") rather than exposing actual exceptions or system paths.
