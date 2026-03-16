@@ -1,0 +1,4 @@
+## 2024-05-24 - Path Traversal in Workspace File Tools
+**Vulnerability:** The `read_file` and `write_file` tools in `myclaw/tools.py` constructed file paths simply using `WORKSPACE / path`. This allowed path traversal (e.g., passing `../../etc/passwd` or an absolute path `/etc/passwd`) which evaluates to paths outside the intended `WORKSPACE` directory. The `/` operator in `pathlib` behaves insecurely with absolute right-hand operands.
+**Learning:** Simply concatenating paths is not secure against traversal, and `pathlib`'s `/` operator has unexpected behavior with absolute paths on the right side.
+**Prevention:** Always use `.resolve()` on both the base directory and the constructed path, and verify the path using `.is_relative_to(base_dir.resolve())` before performing any file operations.
