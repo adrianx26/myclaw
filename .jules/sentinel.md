@@ -1,0 +1,4 @@
+## 2024-05-18 - [Path Traversal in Python Pathlib]
+**Vulnerability:** Path traversal (directory traversal) vulnerabilities in `read_file` and `write_file` using standard Python string path concatenation with `pathlib.Path` via `WORKSPACE / path`.
+**Learning:** The `/` operator in `pathlib.Path` simply appends paths. If the right-hand operand is an absolute path (e.g., `/etc/passwd`), `pathlib` discards the left-hand operand, rendering workspace sandboxing ineffective. Furthermore, it does not normalize `../` by default without calling `.resolve()`.
+**Prevention:** Always sanitize paths constructed from user input. Use `.resolve()` to normalize the path and expand absolute/relative links, then explicitly verify it remains within the intended directory using `.is_relative_to(WORKSPACE.resolve())`. Fail securely (e.g., "Error: Access denied") to avoid leaking internal directory structures via exception strings.
