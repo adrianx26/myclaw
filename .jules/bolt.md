@@ -1,0 +1,3 @@
+## 2024-05-24 - File IO Optimization for Configuration Loading
+**Learning:** Using `Path.exists()` followed by `Path.read_text()` results in redundant filesystem syscalls, which can add up especially in hot paths like configuration loading. Moreover, unconditionally creating directories via `mkdir(exist_ok=True)` on every read incurs unnecessary overhead.
+**Action:** Use a module-level cache `_CONFIG_CACHE` to memoize the loaded configuration. Check `CONFIG_FILE.stat().st_mtime` to detect changes and wrap it in a `try/except FileNotFoundError` block instead of checking `.exists()`. Only perform directory initialization when the cache is empty (i.e. `_CONFIG_CACHE` is `None`).
