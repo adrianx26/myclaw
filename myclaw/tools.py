@@ -13,18 +13,31 @@ def shell(cmd: str) -> str:
     except Exception as e:
         return f"Error: {e}"
 
+def _secure_path(path: str) -> Path:
+    """Computes a secure path within the WORKSPACE, preventing directory traversal."""
+    # Strip leading slashes to prevent absolute path override,
+    # then resolve to remove `../` and verify it's still within WORKSPACE.
+    target = (WORKSPACE / str(path).lstrip('/')).resolve()
+    if not target.is_relative_to(WORKSPACE.resolve()):
+        raise PermissionError("Access denied")
+    return target
+
 def read_file(path: str) -> str:
     try:
-        return (WORKSPACE / path).read_text()
-    except Exception as e:
-        return f"Error: {e}"
+        target = _secure_path(path)
+        return target.read_text()
+    except FileNotFoundError:
+        return "Error: File not found"
+    except Exception:
+        return "Error: Access denied"
 
 def write_file(path: str, content: str) -> str:
     try:
-        (WORKSPACE / path).write_text(content)
+        target = _secure_path(path)
+        target.write_text(content)
         return f"File written: {path}"
-    except Exception as e:
-        return f"Error: {e}"
+    except Exception:
+        return "Error: Access denied"
 
 TOOLS = {
     "shell": {"func": shell, "desc": "Execută comandă shell"},
